@@ -57,13 +57,11 @@ impl Client {
     /// View departures for all routes from a specific stop
     pub async fn departures_stop(
         &self,
-        route_type: RouteType,
         stop_id: i32,
         options: DeparturesStopOps,
     ) -> Result<DeparturesResponse> {
         self.rq(format!(
-            "v3/departures/route_type/{}/stop/{}?{}",
-            route_type.as_number(),
+            "v3/departures/stop/{}?{}",
             stop_id,
             to_query(options)
         ))
