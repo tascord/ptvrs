@@ -8,6 +8,7 @@
 [![docs.rs](https://img.shields.io/docsrs/ptv?style=for-the-badge)](https://docs.rs/ptv)
 
 ## Status
+🟩 ; Complete, 🟦 ; To be tested ([you can help!](https://github.com/tascord/ptvrs/issues/new)), 🟨 ; Needs work, 🟥 ; Avoid use in current state
 | Feature           | Endpoint<br>                           | Status | Notes                                 |
 |-------------------|----------------------------------------|--------|---------------------------------------|
 | **Departures**    | /departures/stop/{}<br>                | 🟨     | Types not yet concrete. See docs.<br> |
