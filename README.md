@@ -1,4 +1,4 @@
-<img width="200" height="200" align="left" style="float: left; margin: 0 10px 0 0;" alt="Icon" src="https://raw.githubusercontent.com/tascord/ptvrs/main/icon.png?token=GHSAT0AAAAAACK4M7CG7GIRQCG7VM5HFBZGZPWZD7A"> 
+<img width="200" height="200" align="left" style="float: left; margin: 0 10px 0 0;" alt="Icon" src="https://github.com/tascord/ptvrs/blob/main/icon.png?raw=true"> 
 
 # PTV (rs)
 ## Public transport Victoria's API in rust
@@ -7,11 +7,25 @@
 [![Crates.io Version](https://img.shields.io/crates/v/ptv?style=for-the-badge)](https://crates.io/crates/ptv)
 [![docs.rs](https://img.shields.io/docsrs/ptv?style=for-the-badge)](https://docs.rs/ptv)
 
-## Currenly Supported
-
-- **Departures**: by Stop, by Stop & Route 
-- **Directions**: by Stop, by Route from Stop
-- **Disruptions**: by Route, by ID, by Route Type and ID
-- **Fare Estimate**: by Min&Max zone
-- **Outlets**: list all,  by Lat&Long
-- **Patterns**: by Run Ref and Route Type
+## Status
+| Feature           | Endpoint<br>                           | Status | Notes                                 |
+|-------------------|----------------------------------------|--------|---------------------------------------|
+| **Departures**    | /departures/stop/{}<br>                | 🟨     | Types not yet concrete. See docs.<br> |
+|                   | /departures/route_type/{}/stop/{}      | 🟨     | "                                     |
+| **Directions**    | /directions/{}                         | 🟦     |                                       |
+|                   | /directions/route/{}                   | 🟦     |                                       |
+|                   | /directions/{}/route_type/{}           | 🟦     |                                       |
+| **Disruptions**   | /disruptions/route/{}                  | 🟦     |                                       |
+|                   | /disruptions/route/{}/stop/{}          | 🟦     |                                       |
+|                   | /disruptions/stop/{}                   | 🟦     |                                       |
+|                   | /disruptions/{}                        | 🟦     |                                       |
+| **Fare Estimate** | /fare_estimate/min_zone/{}/max_zone/{} | 🟥     | Not enough docs.<br>                  |
+| **Outlets**       | /outlets                               | 🟦     |                                       |
+|                   | /outlets/location/{}/{}                | 🟦     |                                       |
+| **Patterns**      | /pattern/run/{}/route_type/{}          | 🟦     |                                       |
+| **Routes**        | /routes                                | 🟨     | Types not yet concrete. See docs.     |
+|                   | /routes/{}                             | 🟨     | "                                     |
+| **Runs**          | /runs/route/{}/route_type/{}           | 🟨     | "                                     |
+|                   | /runs/{}                               | 🟨     | "                                     |
+|                   | /runs/{}/route_type/{}                 | 🟨     | "                                     |
+|                   | /runs/route/{}                         | 🟨     | "                                     |
