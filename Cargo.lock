@@ -743,7 +743,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ptvrs"
+name = "ptv"
 version = "0.1.2"
 dependencies = [
  "anyhow",

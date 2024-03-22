@@ -2,7 +2,7 @@
 pub mod test {
     use dotenv::dotenv;
     use once_cell::sync::Lazy;
-    use ptvrs::*;
+    use ptv::*;
 
     static CLIENT: Lazy<Client> = Lazy::new(|| {
         dotenv().ok();
