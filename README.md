@@ -8,7 +8,7 @@
 [![docs.rs](https://img.shields.io/docsrs/ptv?style=for-the-badge)](https://docs.rs/ptv)
 
 ## Status
-🟩 ; Complete, 🟦 ; To be tested ([you can help!](https://github.com/tascord/ptvrs/issues/new)), 🟨 ; Needs work, 🟥 ; Avoid use in current state
+🟩 ; Complete, 🟦 ; To be tested ([you can help!](https://github.com/tascord/ptvrs/issues/new)), 🟨 ; Needs work, 🟥 ; Avoid use in current state ; ❌ Not implemented, yet.
 | Feature           | Endpoint<br>                           | Status | Notes                                 |
 |-------------------|----------------------------------------|--------|---------------------------------------|
 | **Departures**    | /departures/stop/{}<br>                | 🟨     | Types not yet concrete. See docs.<br> |
@@ -30,3 +30,7 @@
 |                   | /runs/{}                               | 🟨     | "                                     |
 |                   | /runs/{}/route_type/{}                 | 🟨     | "                                     |
 |                   | /runs/route/{}                         | 🟨     | "                                     |
+| **Search**        | /search/{}                             | ❌     | Not implemented                       |
+| **Stops**         | /stops/{}/route_type/{}                | ❌     | "                                     |
+|                   | /stops/route/{}/route_type/{           | ❌     | "                                     |
+|                   | /stops/location/{}/{}                  | ❌     | "                                     |
