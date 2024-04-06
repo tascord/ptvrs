@@ -27,7 +27,6 @@ pub fn to_query<T: Serialize>(s: T) -> String {
             } else {
                 format!("{}={}", k, clean(v.to_string()))
             }
-            
         })
         .collect::<Vec<String>>()
         .join("&")
@@ -39,7 +38,7 @@ where
 {
     let s: String = String::deserialize(deserializer)?;
     Ok(NaiveDateTime::parse_from_str(&s, "%Y-%m-%dT%H:%M:%S")
-        .map_err(|e| serde::de::Error::custom(e.to_string()))?)
+        .map_err(|e| serde::de::Error::custom(format!("Error deser iso_8601 '{s}': {e:?}")))?)
 }
 
 pub fn ser_iso_8601<S>(date: &Option<NaiveDateTime>, serializer: S) -> Result<S::Ok, S::Error>
@@ -60,8 +59,9 @@ where
     let s: Option<String> = Option::deserialize(deserializer)?;
     match s {
         Some(s) => Ok(Some(
-            NaiveDateTime::parse_from_str(&s, "%H:%M:%S")
-                .map_err(|e| serde::de::Error::custom(e.to_string()))?,
+            NaiveDateTime::parse_from_str(&s, "%H:%M:%S").map_err(|e| {
+                serde::de::Error::custom(format!("Error deser service_time '{s}': {e:?}"))
+            })?,
         )),
         None => Ok(None),
     }
@@ -75,5 +75,29 @@ where
     match date {
         Some(date) => serializer.serialize_str(&date.format("%Y-%m-%d %H:%M").to_string()),
         None => serializer.serialize_none(),
+    }
+}
+
+pub fn de_rfc3339<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = String::deserialize(deserializer)?;
+    Ok(NaiveDateTime::parse_from_str(&s, "%Y-%m-%dT%H:%M:%S%.3fZ")
+        .map_err(|e| serde::de::Error::custom(format!("Error deser rfc3339 '{s}': {e:?}")))?)
+}
+
+pub fn opt_de_rfc3339<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    match s {
+        Some(s) => Ok(Some(
+            NaiveDateTime::parse_from_str(&s, "%Y-%m-%dT%H:%M:%S%.3fZ").map_err(|e| {
+                serde::de::Error::custom(format!("Error deser rfc3339 '{s}': {e:?}"))
+            })?,
+        )),
+        None => Ok(None),
     }
 }

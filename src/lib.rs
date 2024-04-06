@@ -22,7 +22,7 @@ impl Client {
         Client { devid, key }
     }
 
-    async fn rq<T: DeserializeOwned>(&self, path: String) -> Result<T> {
+    pub async fn rq<T: DeserializeOwned>(&self, path: String) -> Result<T> {
         let path = format!(
             "/{path}{}devid={}",
             {
@@ -57,18 +57,20 @@ impl Client {
     /// View departures for all routes from a specific stop
     pub async fn departures_stop(
         &self,
+        route_type: RouteType,
         stop_id: i32,
         options: DeparturesStopOps,
     ) -> Result<DeparturesResponse> {
         self.rq(format!(
-            "v3/departures/stop/{}?{}",
+            "v3/departures/route_type/{}/stop/{}?{}",
+            route_type,
             stop_id,
             to_query(options)
         ))
         .await
     }
 
-    /// View departures for a specic route from a stop
+    /// View departures for a specific route from a stop
     pub async fn departures_stop_route(
         &self,
         route_type: RouteType,
@@ -78,7 +80,7 @@ impl Client {
     ) -> Result<DeparturesResponse> {
         self.rq(format!(
             "v3/departures/route_type/{}/route/{}/stop/{}?{}",
-            route_type.as_number(),
+            route_type,
             route_id,
             stop_id,
             to_query(options)
@@ -107,7 +109,7 @@ impl Client {
         self.rq(format!(
             "v3/directions/{}/route_type/{}",
             direction_id,
-            route_type.as_number()
+            route_type
         ))
         .await
     }
@@ -224,7 +226,7 @@ impl Client {
         self.rq(format!(
             "v3/pattern/run/{}/route_type/{}?{}",
             run_ref,
-            route_type.as_number(),
+            route_type,
             to_query(options)
         ))
         .await
@@ -269,7 +271,7 @@ impl Client {
         self.rq(format!(
             "v3/runs/route/{}/route_type/{}?{}",
             run_id,
-            route_type.as_number(),
+            route_type,
             to_query(options)
         ))
         .await
@@ -299,7 +301,7 @@ impl Client {
         self.rq(format!(
             "v3/runs/{}/route_type/{}?{}",
             run_ref,
-            route_type.as_number(),
+            route_type,
             to_query(options)
         ))
         .await

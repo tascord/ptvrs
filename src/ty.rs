@@ -1,17 +1,33 @@
 //! Some types are marked as 'Value' and have a note, TODO: T.
 //! This is because the API documentation does not specify the type of the value.
 //! I'll do my best to fill in what appears to be correct, but it's not guaranteed to be correct.
-//! 
+//!
 //! I appreciate any work done to fill in the TODO: T types.
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::str::FromStr;
+use std::{collections::HashMap, fmt::Display, str::FromStr};
 use to_and_fro::{output_case, ToAndFro};
 
+use crate::{
+    de_rfc3339,
+    helpers::{de_iso_8601, de_service_time, ser_iso_8601, ser_touch_utc},
+    opt_de_rfc3339,
+};
 
-use crate::helpers::{de_iso_8601, de_service_time, ser_iso_8601, ser_touch_utc};
+pub struct I32ButSilly(i32);
+impl<'de> Deserialize<'de> for I32ButSilly {
+    fn deserialize<D>(deserializer: D) -> Result<I32ButSilly, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Ok(I32ButSilly(
+            i32::from_str(&value).map_err(|e| serde::de::Error::custom(format!("{e:?}")))?,
+        ))
+    }
+}
 
 #[derive(Debug, Copy, Clone)]
 #[repr(i8)]
@@ -69,9 +85,9 @@ impl<'de> Deserialize<'de> for RouteType {
     }
 }
 
-impl RouteType {
-    pub fn as_number(&self) -> i8 {
-        Into::<i8>::into(*self)
+impl Display for RouteType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Into::<i8>::into(*self).fmt(f)
     }
 }
 
@@ -157,7 +173,7 @@ pub struct DeparturesStopOps {
     /// Last of objects to be returned in full
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<Vec<ExpandOptions>>,
-    ///Indicates if the route geopaath should be returned
+    ///Indicates if the route geopath should be returned
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include_geopath: Option<bool>,
 }
@@ -230,13 +246,15 @@ pub struct DeparturesResponse {
     /// Timetabled and real-time service departures
     pub departures: Vec<Departure>,
     /// A train station, tram stop, bus stop, regional coach stop or Night Bus stop
-    pub stops: Value, // TODO: T
+    pub stops: Vec<DepartureStop>,
     /// Train lines, tram routes, bus routes, regional coach routes, Night Bus routes
-    pub routes: Value, // TODO: T
+    pub routes: HashMap<String, DepartureRoute>,
     /// Individual trips/services of a route
-    pub runs: Value, // TODO: T
+    pub runs: HashMap<String, Run>,
     /// Directions of travel of route
-    pub directions: Value, // TODO: T
+    pub directions: HashMap<String, Direction>,
+    /// Disruption information applicable to relevant routes or stops
+    pub disruptions: HashMap<String, Disruption>,
     // API Status / Metadata
     pub status: Status,
 }
@@ -256,13 +274,13 @@ pub struct Departure {
     /// Disruption information identifier(s)
     pub disruption_ids: Vec<i32>,
     /// Scheduled (i.e. timetabled) departure time and date
-    #[serde(deserialize_with = "de_iso_8601")]
+    #[serde(deserialize_with = "opt_de_rfc3339")]
     #[serde(rename = "scheduled_departure_utc")]
-    pub scheduled_departure: NaiveDateTime,
+    pub scheduled_departure: Option<NaiveDateTime>, // TODO: Seems to always be Some
     /// Real-time estimate of departure time and date
-    #[serde(deserialize_with = "de_iso_8601")]
+    #[serde(deserialize_with = "opt_de_rfc3339")]
     #[serde(rename = "estimated_departure_utc")]
-    pub estimated_departure: NaiveDateTime,
+    pub estimated_departure: Option<NaiveDateTime>,
     /// Indicates if the metropolitan train service is at the platform at the time of query.
     /// false for other modes
     pub at_platform: bool,
@@ -273,6 +291,55 @@ pub struct Departure {
     pub flags: String,
     /// Chronological sequence for the departures in a run.
     pub departure_sequence: i32,
+}
+
+/// TODO: Should we rename fields here?
+#[derive(Deserialize, Debug)]
+pub struct DepartureStop {
+    #[serde(rename = "stop_distance")]
+    pub distance: i32, // TODO: Check if this should be a float
+    #[serde(rename = "stop_suburb")]
+    pub suburb: String,
+    #[serde(rename = "stop_name")]
+    pub name: String,
+    #[serde(rename = "stop_id")]
+    pub id: i32,
+    pub route_type: RouteType,
+    #[serde(rename = "stop_latitude")]
+    pub latitude: f64,
+    #[serde(rename = "stop_longitude")]
+    pub longitude: f64,
+    /// Seems to sometimes be empty
+    #[serde(rename = "stop_landmark")]
+    pub landmark: String,
+    #[serde(rename = "stop_sequence")]
+    pub sequence: i32,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct DepartureRoute {
+    #[serde(rename = "route_type")]
+    pub route_type: RouteType,
+    #[serde(rename = "route_id")]
+    pub id: i32,
+    #[serde(rename = "route_name")]
+    pub name: String,
+    #[serde(rename = "route_number")]
+    pub number: String,
+    #[serde(rename = "route_gtfs_id")]
+    pub gtfs_id: String,
+    /// TODO: T
+    pub geopath: Vec<Value>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Direction {
+    #[serde(rename = "direction_id")]
+    pub id: i32,
+    #[serde(rename = "direction_name")]
+    pub name: String,
+    pub route_id: i32,
+    pub route_type: RouteType,
 }
 
 //
@@ -404,17 +471,23 @@ pub struct Disruption {
     /// Description of the disruption
     pub description: String,
     /// Status of the disruption (e.g. "Planned", "Current")
-    pub disruption_status: String,
+    #[serde(deserialize_with = "de_rfc3339")]
+    pub disruption_status: NaiveDateTime,
     /// Type of disruption
-    pub disruption_type: String,
+    #[serde(deserialize_with = "de_rfc3339")]
+    pub disruption_type: NaiveDateTime,
     /// Date and time disruption information is published on PTV website
-    pub published_on: String,
+    #[serde(deserialize_with = "de_rfc3339")]
+    pub published_on: NaiveDateTime,
     /// Date and time disruption information was last updated by PTV
-    pub last_updated: String,
+    #[serde(deserialize_with = "de_rfc3339")]
+    pub last_updated: NaiveDateTime,
     /// Date and time at which disruption begins
-    pub from_date: String,
+    #[serde(deserialize_with = "de_rfc3339")]
+    pub from_date: NaiveDateTime,
     /// Date and time at which disruption ends (returns None if unknown)
-    pub to_date: Option<String>,
+    #[serde(deserialize_with = "opt_de_rfc3339")]
+    pub to_date: Option<NaiveDateTime>,
     /// Route relevant to a disruption (if applicable)
     pub routes: Vec<DisruptionRoute>,
     /// Stop relevant to a disruption (if applicable)
@@ -437,19 +510,15 @@ pub struct DisruptionRoute {
     /// Transport mode identifier
     pub route_type: RouteType,
     /// Route identifier
-    #[serde(rename = "route_id")]
-    pub id: i32,
+    pub route_id: i32,
     /// Name of route
-    #[serde(rename = "route_name")]
-    pub name: String,
+    pub route_name: String,
     /// Route number presented to public (i.e not route_id)
-    #[serde(rename = "route_number")]
-    pub number: String,
+    pub route_number: String,
     /// Route GTFS identifier
-    #[serde(rename = "route_gtfs_id")]
-    pub gtfs_id: String,
+    pub route_gtfs_id: String,
     /// Direction of travel relevant to disruption
-    pub direction: DisruptionDirection,
+    pub direction: Option<DisruptionDirection>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -619,7 +688,6 @@ pub struct PatternResponse {
     pub status: Status,
 }
 
-
 #[derive(Serialize, Default)]
 pub struct RouteOpts {
     /// Filterered by route_types
@@ -646,7 +714,8 @@ pub struct RouteIdOpts {
 #[derive(Deserialize, Debug)]
 pub struct RoutesResponse {
     /// Train lines, tram routes, bus routes, regional coach routes, Night Bus routes
-    pub routes: Vec<RouteWithStatus>, /// Documented as route: RouteWithStatus?
+    pub routes: Vec<RouteWithStatus>,
+    /// Documented as route: RouteWithStatus?
     /// API Status / Metadata
     pub status: Status,
 }
@@ -721,7 +790,7 @@ pub struct RunsResponse {
 
 #[derive(Deserialize, Debug)]
 pub struct Run {
-    /// Numeric trip/service run identifier. 
+    /// Numeric trip/service run identifier.
     /// Defaults to -1 when run identifier is Alphanumeric
     pub run_id: i32,
     /// Alphanumeric trip/service run identifier
@@ -740,7 +809,7 @@ pub struct Run {
     pub direction_id: i32,
     /// Chronological sequence of the trip/service run on the route in direction
     /// Order ascendingly by this field to get chronological order (earliest first) of runs with the same route_id and direction_id
-    /// 
+    ///
     /// What a mouthful
     pub run_sequence: i32,
     // The number of remaining skipped/express stations for the run/service from a stop

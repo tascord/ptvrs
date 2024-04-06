@@ -19,10 +19,11 @@ pub mod test {
         println!(
             "{:?}",
             CLIENT
-                .runs_id(
-                    2,
-                    RunsIdOpts {
-                        expand: vec![ExpandOptions::All].into(),
+                .departures_stop(
+                    RouteType::Train,
+                    1071,
+                    DeparturesStopOps {
+                        expand: Some(vec![ExpandOptions::All]),
                         ..Default::default()
                     }
                 )
