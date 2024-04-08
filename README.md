@@ -9,28 +9,29 @@
 
 ## Status
 🟩 ; Complete, 🟦 ; To be tested ([you can help!](https://github.com/tascord/ptvrs/issues/new)), 🟨 ; Needs work, 🟥 ; Avoid use in current state ; ❌ Not implemented, yet.
-| Feature           | Endpoint<br>                           | Status | Notes                                 |
-|-------------------|----------------------------------------|--------|---------------------------------------|
-| **Departures**    | /departures/stop/{}<br>                | 🟦     |                                       |
-|                   | /departures/route_type/{}/stop/{}      | 🟦     |                                       |
-| **Directions**    | /directions/{}                         | 🟦     |                                       |
-|                   | /directions/route/{}                   | 🟦     |                                       |
-|                   | /directions/{}/route_type/{}           | 🟦     |                                       |
-| **Disruptions**   | /disruptions/route/{}                  | 🟦     |                                       |
-|                   | /disruptions/route/{}/stop/{}          | 🟦     |                                       |
-|                   | /disruptions/stop/{}                   | 🟦     |                                       |
-|                   | /disruptions/{}                        | 🟦     |                                       |
-| **Fare Estimate** | /fare_estimate/min_zone/{}/max_zone/{} | 🟥     | Not enough docs.<br>                  |
-| **Outlets**       | /outlets                               | 🟦     |                                       |
-|                   | /outlets/location/{}/{}                | 🟦     |                                       |
-| **Patterns**      | /pattern/run/{}/route_type/{}          | 🟦     |                                       |
-| **Routes**        | /routes                                | 🟨     | Types not yet concrete. See docs.     |
-|                   | /routes/{}                             | 🟨     | "                                     |
-| **Runs**          | /runs/route/{}/route_type/{}           | 🟨     | "                                     |
-|                   | /runs/{}                               | 🟨     | "                                     |
-|                   | /runs/{}/route_type/{}                 | 🟨     | "                                     |
-|                   | /runs/route/{}                         | 🟨     | "                                     |
-| **Search**        | /search/{}                             | ❌     | Not implemented                       |
-| **Stops**         | /stops/{}/route_type/{}                | ❌     | "                                     |
-|                   | /stops/route/{}/route_type/{           | ❌     | "                                     |
-|                   | /stops/location/{}/{}                  | ❌     | "                                     |
+| Feature           | Endpoint                                                                                                                     | Status | Notes                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------- |
+| **Departures**    | [/departures/route_type/stop/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.departures_stop)                   | 🟦      |                                   |
+|                   | [/departures/route_type/{}/stop/{}/route/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.departures_stop_route) | 🟦      |                                   |
+| **Directions**    | [/directions/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.directions_id)                                     | 🟦      |                                   |
+|                   | [/directions/route/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.directions_route)                            | 🟦      |                                   |
+|                   | [/directions/{}/route_type/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.directions_id_route)                 | 🟦      |                                   |
+| **Disruptions**   | [/disruptions](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.disruptions)                                         | 🟦      |                                   |
+|                   | [/disruptions/route/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.disruptions_route)                          | 🟦      |                                   |
+|                   | [/disruptions/route/{}/stop/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.disruptions_route_stop)             | 🟦      |                                   |
+|                   | [/disruptions/stop/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.disruptions_stop)                            | 🟦      |                                   |
+| **Disruptions**   | [/disruptions/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.disruptions_id)                                   | 🟦      |                                   |
+| **Fare Estimate** | [/fare_estimate/min_zone/{}/max_zone/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.fare_estimate)             | 🟥      | Not enough docs.                  |
+| **Outlets**       | [/outlets](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.outlets)                                                 | 🟦      |                                   |
+|                   | [/outlets/location/{}/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.outlets_lat_long)                         | 🟦      |                                   |
+| **Patterns**      | [/pattern/run/{}/route_type/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.patterns_run_route)                 | 🟦      |                                   |
+| **Routes**        | [/routes](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.routes)                                                   | 🟨      | Types not yet concrete. See docs. |
+|                   | [/routes/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.routes_id)                                             | 🟨      | "                                 |
+| **Runs**          | [/runs/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_ref)                                                | 🟨      | "                                 |
+|                   | [/runs/route/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_id)                                           | 🟨      | "                                 |
+|                   | [/runs/{}/route_type/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_ref_type)                             | 🟨      | "                                 |
+|                   | [/runs/route/{}/route_type/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_id_type)                        | 🟨      | "                                 |
+| **Search**        | /search/{}                                                                                                                   | ❌      | Not implemented                   |
+| **Stops**         | /stops/{}/route_type/{}                                                                                                      | ❌      | "                                 |
+|                   | /stops/route/{}/route_type/{}                                                                                                | ❌      | "                                 |
+|                   | /stops/location/{}/{}                                                                                                        | ❌      | "                                 |

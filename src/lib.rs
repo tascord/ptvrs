@@ -91,14 +91,14 @@ impl Client {
 
     /* > Directions */
 
-    /// View directions that a route travels in
-    pub async fn directions_route(&self, route_id: i32) -> Result<DirectionsResponse> {
-        self.rq(format!("v3/directions/route/{}", route_id)).await
-    }
-
     /// View all routes for a direction of travel
     pub async fn directions_id(&self, direction_id: i32) -> Result<DirectionsResponse> {
         self.rq(format!("v3/directions/{}", direction_id)).await
+    }
+
+    /// View directions that a route travels in
+    pub async fn directions_route(&self, route_id: i32) -> Result<DirectionsResponse> {
+        self.rq(format!("v3/directions/route/{}", route_id)).await
     }
 
     /// View all routes of a particular type for a direction of travel
@@ -109,8 +109,7 @@ impl Client {
     ) -> Result<DirectionsResponse> {
         self.rq(format!(
             "v3/directions/{}/route_type/{}",
-            direction_id,
-            route_type
+            direction_id, route_type
         ))
         .await
     }
@@ -248,15 +247,29 @@ impl Client {
 
     /* > Runs */
 
+    /// View all trip/service runs for a specific run_ref
+    pub async fn runs_ref(&self, run_ref: String, options: RunsRefOpts) -> Result<RunsResponse> {
+        self.rq(format!("v3/runs/{}?{}", run_ref, to_query(options)))
+            .await
+    }
+
     /// View all trip/service runs for a specific route ID
-    pub async fn runs_id(
+    pub async fn runs_id(&self, run_id: i32, options: RunsIdOpts) -> Result<RunsResponse> {
+        self.rq(format!("v3/runs/route/{}?{}", run_id, to_query(options)))
+            .await
+    }
+
+    /// View all trip/service runs for a specific run_ref and route type
+    pub async fn runs_ref_type(
         &self,
-        run_id: i32,
-        options: RunsIdOpts,
+        run_ref: String,
+        route_type: RouteType,
+        options: RunsRefOpts,
     ) -> Result<RunsResponse> {
         self.rq(format!(
-            "v3/runs/route/{}?{}",
-            run_id,
+            "v3/runs/{}/route_type/{}?{}",
+            run_ref,
+            route_type,
             to_query(options)
         ))
         .await
@@ -272,36 +285,6 @@ impl Client {
         self.rq(format!(
             "v3/runs/route/{}/route_type/{}?{}",
             run_id,
-            route_type,
-            to_query(options)
-        ))
-        .await
-    }
-
-    /// View all trip/service runs for a specific run_ref
-    pub async fn runs_ref(
-        &self,
-        run_ref: String,
-        options: RunsRefOpts,
-    ) -> Result<RunsResponse> {
-        self.rq(format!(
-            "v3/runs/{}?{}",
-            run_ref,
-            to_query(options)
-        ))
-        .await
-    }
-
-    /// View all trip/service runs for a specific run_ref and route type
-    pub async fn runs_ref_type(
-        &self,
-        run_ref: String,
-        route_type: RouteType,
-        options: RunsRefOpts,
-    ) -> Result<RunsResponse> {
-        self.rq(format!(
-            "v3/runs/{}/route_type/{}?{}",
-            run_ref,
             route_type,
             to_query(options)
         ))
