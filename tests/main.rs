@@ -1,8 +1,7 @@
+#[allow(dead_code)]
 #[cfg(test)]
 pub mod test {
-    use std::{
-        collections::HashMap, future::Future, pin::Pin, sync::Arc,
-    };
+    use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc};
 
     use colored::Colorize;
     use dotenv::dotenv;
@@ -10,7 +9,6 @@ pub mod test {
     use ptv::*;
 
     static CLIENT: Lazy<Client> = Lazy::new(|| {
-
         // Load .env file if DEVID and KEY are not set
         if std::env::var("DEVID").is_err() || std::env::var("KEY").is_err() {
             dotenv().ok();
@@ -23,9 +21,9 @@ pub mod test {
     });
 
     // TODO: Find sensible constants
-    static ROUTE_TYPE: RouteType = RouteType::Train;
-    static ROUTE_ID: i32 = 1;
-    static STOP_ID: i32 = 1;
+    static ROUTE_TYPE: RouteType = RouteType::Train; // Train
+    static ROUTE_ID: i32 = 1; // Alamein (Line)
+    static STOP_ID: i32 = 1002; // Alamein (Station)
 
     type Task =
         Arc<dyn Fn() -> Pin<Box<dyn Future<Output = anyhow::Result<String>>>> + Send + Sync>;
@@ -38,7 +36,11 @@ pub mod test {
             Arc::new(|| {
                 Box::pin(async {
                     let res = CLIENT
-                        .departures_stop(ROUTE_TYPE, STOP_ID, DeparturesStopOpts::default())
+                        .departures_stop(
+                            ROUTE_TYPE,
+                            STOP_ID,
+                            DeparturesStopOpts::default(),
+                        )
                         .await?;
 
                     Ok(format!("{:?}", res))
@@ -79,12 +81,18 @@ pub mod test {
             let elapsed = start.elapsed();
             match res {
                 Ok(res) => println!(
-                    "[{}] {} {} in {:?}:\n{}",
+                    "[{}] {} {} in {:?}:{}",
                     "+".green(),
                     name.yellow(),
                     "passed".green(),
                     elapsed,
-                    res.cyan()
+                    {
+                        if std::env::var("quiet").is_ok() {
+                            format!("\n{}", res.cyan())
+                        } else {
+                            " ...".cyan().to_string()
+                        }
+                    }
                 ),
                 Err(e) => {
                     failed += 1;

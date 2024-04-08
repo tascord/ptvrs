@@ -41,6 +41,10 @@ impl Client {
         let hash = hex::encode(hasher.finalize().into_bytes());
         let url = format!("{API_URL}{}&signature={}", path, hash);
 
+        if std::env::var("DEBUG").is_ok() {
+            println!("Requesting: {}", url);
+        }
+
         let res = reqwest::get(&url).await?;
         if !res.status().is_success() {
             return Err(anyhow::anyhow!("Request failed: {}", res.status()));

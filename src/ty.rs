@@ -16,7 +16,7 @@ use crate::{
     opt_de_rfc3339,
 };
 
-pub struct I32ButSilly(i32);
+pub struct I32ButSilly(pub i32);
 impl<'de> Deserialize<'de> for I32ButSilly {
     fn deserialize<D>(deserializer: D) -> Result<I32ButSilly, D::Error>
     where
@@ -95,7 +95,7 @@ impl Display for RouteType {
 pub enum DisruptionModes {}
 
 impl From<i8> for DisruptionModes {
-    fn from(value: i8) -> Self {
+    fn from(_value: i8) -> Self {
         todo!();
     }
 }
@@ -246,7 +246,7 @@ pub struct DeparturesResponse {
     /// Timetabled and real-time service departures
     pub departures: Vec<Departure>,
     /// A train station, tram stop, bus stop, regional coach stop or Night Bus stop
-    pub stops: Vec<DepartureStop>,
+    pub stops: HashMap<String, DepartureStop>,
     /// Train lines, tram routes, bus routes, regional coach routes, Night Bus routes
     pub routes: HashMap<String, DepartureRoute>,
     /// Individual trips/services of a route
@@ -297,7 +297,7 @@ pub struct Departure {
 #[derive(Deserialize, Debug)]
 pub struct DepartureStop {
     #[serde(rename = "stop_distance")]
-    pub distance: i32, // TODO: Check if this should be a float
+    pub distance: f32,
     #[serde(rename = "stop_suburb")]
     pub suburb: String,
     #[serde(rename = "stop_name")]
@@ -471,11 +471,9 @@ pub struct Disruption {
     /// Description of the disruption
     pub description: String,
     /// Status of the disruption (e.g. "Planned", "Current")
-    #[serde(deserialize_with = "de_rfc3339")]
-    pub disruption_status: NaiveDateTime,
+    pub disruption_status: DisruptionStatus, // TODO: This might want to be a String
     /// Type of disruption
-    #[serde(deserialize_with = "de_rfc3339")]
-    pub disruption_type: NaiveDateTime,
+    pub disruption_type: String,
     /// Date and time disruption information is published on PTV website
     #[serde(deserialize_with = "de_rfc3339")]
     pub published_on: NaiveDateTime,

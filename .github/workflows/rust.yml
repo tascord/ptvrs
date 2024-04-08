@@ -21,4 +21,5 @@ jobs:
       env:
         DEVID: ${{ secrets.DEVID }}
         KEY: ${{ secrets.KEY }}
+        QUIET: true
       run: cargo test --verbose
