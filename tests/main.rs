@@ -13,7 +13,7 @@ pub mod test {
 
         // Load .env file if DEVID and KEY are not set
         if !std::env::vars().any(|(k, _)| k == "DEVID" || k == "KEY") {
-            dotenv().ok();
+            dotenv().ok().expect("Failed to find .env");
         }
 
         Client::new(
