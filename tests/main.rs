@@ -1,12 +1,23 @@
 #[allow(dead_code)]
 #[cfg(test)]
 pub mod test {
-    use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc};
+    use std::{collections::{BTreeMap, HashMap}, future::Future, pin::Pin, sync::Arc};
 
     use colored::Colorize;
     use dotenv::dotenv;
     use once_cell::sync::Lazy;
     use ptv::*;
+
+    macro_rules! make_test {
+        ($m:expr, $name:literal, {$e:expr}) => {
+            $m.insert($name, Arc::new(|| {
+                Box::pin(async {
+                    let res = $e.await?;
+                    Ok(format!("{:?}", res))
+                })
+            }));
+        };
+    }
 
     static CLIENT: Lazy<Client> = Lazy::new(|| {
         // Load .env file if DEVID and KEY are not set
@@ -24,47 +35,58 @@ pub mod test {
     static ROUTE_TYPE: RouteType = RouteType::Train; // Train
     static ROUTE_ID: i32 = 1; // Alamein (Line)
     static STOP_ID: i32 = 1002; // Alamein (Station)
+    static DIRECTION_ID: i32 = 1; // Towards Flinders Street
 
     type Task =
         Arc<dyn Fn() -> Pin<Box<dyn Future<Output = anyhow::Result<String>>>> + Send + Sync>;
-    pub static TASKS: Lazy<HashMap<&str, Task>> = Lazy::new(|| {
-        let mut map = HashMap::<&str, Task>::new();
+    pub static TASKS: Lazy<BTreeMap<&str, Task>> = Lazy::new(|| {
+        let mut map = BTreeMap::<&str, Task>::new();
 
         // > Departures
-        map.insert(
-            "departures_stop",
-            Arc::new(|| {
-                Box::pin(async {
-                    let res = CLIENT
-                        .departures_stop(
-                            ROUTE_TYPE,
-                            STOP_ID,
-                            DeparturesStopOpts::default(),
-                        )
-                        .await?;
+        make_test!(map, "departures_stop", {
+            CLIENT.departures_stop(ROUTE_TYPE, STOP_ID, DeparturesStopOpts::default())
+        });
 
-                    Ok(format!("{:?}", res))
-                })
-            }),
-        );
+        make_test!(map, "departures_stop_route", {
+            CLIENT.departures_stop_route(
+                ROUTE_TYPE,
+                ROUTE_ID,
+                STOP_ID,
+                DeparturesStopRouteOpts::default()
+            )
+        });
 
-        map.insert(
-            "departures_stop_route",
-            Arc::new(|| {
-                Box::pin(async {
-                    let res = CLIENT
-                        .departures_stop_route(
-                            ROUTE_TYPE,
-                            ROUTE_ID,
-                            STOP_ID,
-                            DeparturesStopRouteOpts::default(),
-                        )
-                        .await?;
+        // > Directions
 
-                    Ok(format!("{:?}", res))
-                })
-            }),
-        );
+        make_test!(map, "directions_id", {
+            CLIENT.directions_id(DIRECTION_ID)
+        });
+
+        make_test!(map, "directions_route", {
+            CLIENT.directions_route(ROUTE_ID)
+        });
+
+        make_test!(map, "directions_id_route", {
+            CLIENT.directions_id_route(DIRECTION_ID, ROUTE_TYPE)
+        });
+
+        // > Disruptions
+
+        make_test!(map, "disruptions", {
+            CLIENT.disruptions(DisruptionsOpts::default())
+        });
+
+        make_test!(map, "disruptions_route", {
+            CLIENT.disruptions_route(ROUTE_ID, DisruptionsSpecificOpts::default())
+        });
+
+        make_test!(map, "disruptions_route_stop", {
+            CLIENT.disruptions_route_stop(ROUTE_ID, STOP_ID, DisruptionsSpecificOpts::default())
+        });
+
+        make_test!(map, "disruptions_stop", {
+            CLIENT.disruptions_stop(STOP_ID, DisruptionsSpecificOpts::default())
+        });
 
         map
     });

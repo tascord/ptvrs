@@ -387,7 +387,7 @@ pub struct DisruptionsOpts {
 }
 
 #[derive(Serialize, Default)]
-pub struct DisruptionStatusOpts {
+pub struct DisruptionsSpecificOpts {
     /// Filter by status of disruption
     #[serde(rename = "disruption_status")]
     #[serde(skip_serializing_if = "Option::is_none")]

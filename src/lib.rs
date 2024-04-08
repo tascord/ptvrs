@@ -126,7 +126,7 @@ impl Client {
     pub async fn disruptions_route(
         &self,
         route_id: i32,
-        options: DisruptionStatusOpts,
+        options: DisruptionsSpecificOpts,
     ) -> Result<DisruptionsResponse> {
         self.rq(format!(
             "v3/disruptions/route/{}?{}",
@@ -141,7 +141,7 @@ impl Client {
         &self,
         route_id: i32,
         stop_id: i32,
-        options: DisruptionStatusOpts,
+        options: DisruptionsSpecificOpts,
     ) -> Result<DisruptionsResponse> {
         self.rq(format!(
             "v3/disruptions/route/{}/stop/{}?{}",
@@ -156,7 +156,7 @@ impl Client {
     pub async fn disruptions_stop(
         &self,
         stop_id: i32,
-        options: DisruptionStatusOpts,
+        options: DisruptionsSpecificOpts,
     ) -> Result<DisruptionsResponse> {
         self.rq(format!(
             "v3/disruptions/stop/{}?{}",
