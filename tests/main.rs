@@ -12,8 +12,8 @@ pub mod test {
     static CLIENT: Lazy<Client> = Lazy::new(|| {
 
         // Load .env file if DEVID and KEY are not set
-        if !std::env::vars().any(|(k, _)| k == "DEVID" || k == "KEY") {
-            dotenv().ok().expect("Failed to find .env");
+        if std::env::var("DEVID").is_err() || std::env::var("KEY").is_err() {
+            dotenv().ok();
         }
 
         Client::new(
