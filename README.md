@@ -11,8 +11,8 @@
 🟩 ; Complete, 🟦 ; To be tested ([you can help!](https://github.com/tascord/ptvrs/issues/new)), 🟨 ; Needs work, 🟥 ; Avoid use in current state ; ❌ Not implemented, yet.
 | Feature           | Endpoint<br>                           | Status | Notes                                 |
 |-------------------|----------------------------------------|--------|---------------------------------------|
-| **Departures**    | /departures/stop/{}<br>                | 🟨     | Types not yet concrete. See docs.<br> |
-|                   | /departures/route_type/{}/stop/{}      | 🟨     | "                                     |
+| **Departures**    | /departures/stop/{}<br>                | 🟦     |                                       |
+|                   | /departures/route_type/{}/stop/{}      | 🟦     |                                       |
 | **Directions**    | /directions/{}                         | 🟦     |                                       |
 |                   | /directions/route/{}                   | 🟦     |                                       |
 |                   | /directions/{}/route_type/{}           | 🟦     |                                       |
