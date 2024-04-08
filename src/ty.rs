@@ -144,7 +144,7 @@ pub struct Status {
 //
 
 #[derive(Serialize, Default)]
-pub struct DeparturesStopOps {
+pub struct DeparturesStopOpts {
     /// Filter by platform number at stop
     #[serde(skip_serializing_if = "Option::is_none")]
     pub platform_numbers: Option<Vec<i32>>,

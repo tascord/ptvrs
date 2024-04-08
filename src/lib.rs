@@ -41,9 +41,6 @@ impl Client {
         let hash = hex::encode(hasher.finalize().into_bytes());
         let url = format!("{API_URL}{}&signature={}", path, hash);
 
-        println!("{}", path);
-        println!("{}, {}", self.devid, self.key);
-        println!("{url}");
         let res = reqwest::get(&url).await?;
         if !res.status().is_success() {
             return Err(anyhow::anyhow!("Request failed: {}", res.status()));
@@ -59,7 +56,7 @@ impl Client {
         &self,
         route_type: RouteType,
         stop_id: i32,
-        options: DeparturesStopOps,
+        options: DeparturesStopOpts,
     ) -> Result<DeparturesResponse> {
         self.rq(format!(
             "v3/departures/route_type/{}/stop/{}?{}",
@@ -76,10 +73,10 @@ impl Client {
         route_type: RouteType,
         route_id: i32,
         stop_id: i32,
-        options: DeparturesStopOps,
+        options: DeparturesStopRouteOpts,
     ) -> Result<DeparturesResponse> {
         self.rq(format!(
-            "v3/departures/route_type/{}/route/{}/stop/{}?{}",
+            "v3/departures/route_type/{}/stop/{}/route/{}?{}",
             route_type,
             route_id,
             stop_id,

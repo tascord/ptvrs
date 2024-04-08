@@ -1,6 +1,6 @@
 [package]
 name = "ptv"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 description = "A Rust library for the Public Transport Victoria (PTV) API"
@@ -11,6 +11,7 @@ repository = "https://github.com/tascord/ptvrs"
 [dependencies]
 anyhow = "1.0.81"
 chrono = "0.4.35"
+colored = "2.1.0"
 dotenv = "0.15.0"
 hex = "0.4.3"
 hmac = "0.12.1"
