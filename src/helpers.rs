@@ -58,11 +58,17 @@ where
 {
     let s: Option<String> = Option::deserialize(deserializer)?;
     match s {
-        Some(s) => Ok(Some(
-            NaiveDateTime::parse_from_str(&s, "%H:%M:%S").map_err(|e| {
-                serde::de::Error::custom(format!("Error deser service_time '{s}': {e:?}"))
-            })?,
-        )),
+        Some(s) => {
+            if s.is_empty() {
+                Ok(None)
+            } else {
+                Ok(Some(
+                    NaiveDateTime::parse_from_str(&s, "%H:%M:%S").map_err(|e| {
+                        serde::de::Error::custom(format!("Error deser service_time '{s}': {e:?}"))
+                    })?,
+                ))
+            }
+        }
         None => Ok(None),
     }
 }

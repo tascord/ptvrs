@@ -531,6 +531,8 @@ pub struct DisruptionDirection {
     #[serde(rename = "direction_name")]
     pub name: String,
     /// Time of service to which disruption applies. Returns None if disruption applies to multiple, or no services
+    ///
+    /// This doesn't use null, it uses a blank string. I hate it here.
     #[serde(deserialize_with = "de_service_time")]
     pub service_time: Option<NaiveDateTime>,
 }

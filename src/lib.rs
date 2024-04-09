@@ -26,10 +26,14 @@ impl Client {
         let path = format!(
             "/{path}{}devid={}",
             {
-                if path.ends_with('?') {
-                    ""
+                if !path.contains('?') {
+                    "?"
                 } else {
-                    "&"
+                    if path.ends_with('?') {
+                        "" 
+                    } else {
+                        "&"
+                    }
                 }
             },
             self.devid

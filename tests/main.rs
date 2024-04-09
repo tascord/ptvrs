@@ -109,7 +109,7 @@ pub mod test {
                     "passed".green(),
                     elapsed,
                     {
-                        if std::env::var("quiet").is_ok() {
+                        if std::env::var("QUIET").is_err() {
                             format!("\n{}", res.cyan())
                         } else {
                             " ...".cyan().to_string()
