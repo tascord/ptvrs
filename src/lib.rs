@@ -28,12 +28,10 @@ impl Client {
             {
                 if !path.contains('?') {
                     "?"
+                } else if path.ends_with('?') {
+                    ""
                 } else {
-                    if path.ends_with('?') {
-                        "" 
-                    } else {
-                        "&"
-                    }
+                    "&"
                 }
             },
             self.devid
@@ -51,7 +49,11 @@ impl Client {
 
         let res = reqwest::get(&url).await?;
         if !res.status().is_success() {
-            return Err(anyhow::anyhow!("Request failed: {}", res.status()));
+            let status = res.status();
+            if let Ok(ApiError { message, .. }) = res.json().await {
+                return Err(anyhow::anyhow!("Request failed: {} - {}", status, message));
+            }
+            return Err(anyhow::anyhow!("Request failed: {}", status));
         }
 
         Ok(res.json().await?)
@@ -63,7 +65,7 @@ impl Client {
     pub async fn departures_stop(
         &self,
         route_type: RouteType,
-        stop_id: i32,
+        stop_id: StopId,
         options: DeparturesStopOpts,
     ) -> Result<DeparturesResponse> {
         self.rq(format!(
@@ -79,8 +81,8 @@ impl Client {
     pub async fn departures_stop_route(
         &self,
         route_type: RouteType,
-        route_id: i32,
-        stop_id: i32,
+        route_id: RouteId,
+        stop_id: StopId,
         options: DeparturesStopRouteOpts,
     ) -> Result<DeparturesResponse> {
         self.rq(format!(
@@ -96,19 +98,19 @@ impl Client {
     /* > Directions */
 
     /// View all routes for a direction of travel
-    pub async fn directions_id(&self, direction_id: i32) -> Result<DirectionsResponse> {
+    pub async fn directions_id(&self, direction_id: DirectionId) -> Result<DirectionsResponse> {
         self.rq(format!("v3/directions/{}", direction_id)).await
     }
 
     /// View directions that a route travels in
-    pub async fn directions_route(&self, route_id: i32) -> Result<DirectionsResponse> {
+    pub async fn directions_route(&self, route_id: RouteId) -> Result<DirectionsResponse> {
         self.rq(format!("v3/directions/route/{}", route_id)).await
     }
 
     /// View all routes of a particular type for a direction of travel
     pub async fn directions_id_route(
         &self,
-        direction_id: i32,
+        direction_id: DirectionId,
         route_type: RouteType,
     ) -> Result<DirectionsResponse> {
         self.rq(format!(
@@ -129,7 +131,7 @@ impl Client {
     /// View all disruptions for a particular route
     pub async fn disruptions_route(
         &self,
-        route_id: i32,
+        route_id: RouteId,
         options: DisruptionsSpecificOpts,
     ) -> Result<DisruptionsResponse> {
         self.rq(format!(
@@ -143,8 +145,8 @@ impl Client {
     /// View all disruptions for a particular route and stop
     pub async fn disruptions_route_stop(
         &self,
-        route_id: i32,
-        stop_id: i32,
+        route_id: RouteId,
+        stop_id: StopId,
         options: DisruptionsSpecificOpts,
     ) -> Result<DisruptionsResponse> {
         self.rq(format!(
@@ -159,7 +161,7 @@ impl Client {
     /// View all disruptions for a particular stop
     pub async fn disruptions_stop(
         &self,
-        stop_id: i32,
+        stop_id: StopId,
         options: DisruptionsSpecificOpts,
     ) -> Result<DisruptionsResponse> {
         self.rq(format!(
@@ -171,7 +173,7 @@ impl Client {
     }
 
     /// View a specific disruption
-    pub async fn disruptions_id(&self, disruption_id: i32) -> Result<Disruption> {
+    pub async fn disruptions_id(&self, disruption_id: DisruptionId) -> Result<Disruption> {
         // TODO: Technically this has Status too but I dont want to
         // dupe the struct 17 times
         self.rq(format!("v3/disruptions/{}", disruption_id)).await
@@ -223,7 +225,7 @@ impl Client {
     /// View the stopping pattern for a specific tip / service run
     pub async fn patterns_run_route(
         &self,
-        run_ref: String,
+        run_ref: &str,
         route_type: RouteType,
         options: PatternsRunRouteOpts,
     ) -> Result<PatternResponse> {
@@ -244,7 +246,11 @@ impl Client {
     }
 
     // View route name and number for a specific route ID
-    pub async fn routes_id(&self, route_id: i32, options: RouteIdOpts) -> Result<RoutesIdResponse> {
+    pub async fn routes_id(
+        &self,
+        route_id: RouteId,
+        options: RouteIdOpts,
+    ) -> Result<RoutesIdResponse> {
         self.rq(format!("v3/routes/{}?{}", route_id, to_query(options)))
             .await
     }
@@ -252,13 +258,13 @@ impl Client {
     /* > Runs */
 
     /// View all trip/service runs for a specific run_ref
-    pub async fn runs_ref(&self, run_ref: String, options: RunsRefOpts) -> Result<RunsResponse> {
+    pub async fn runs_ref(&self, run_ref: &str, options: RunsRefOpts) -> Result<RunsResponse> {
         self.rq(format!("v3/runs/{}?{}", run_ref, to_query(options)))
             .await
     }
 
     /// View all trip/service runs for a specific route ID
-    pub async fn runs_id(&self, run_id: i32, options: RunsIdOpts) -> Result<RunsResponse> {
+    pub async fn runs_id(&self, run_id: RouteId, options: RunsIdOpts) -> Result<RunsResponse> {
         self.rq(format!("v3/runs/route/{}?{}", run_id, to_query(options)))
             .await
     }
@@ -266,7 +272,7 @@ impl Client {
     /// View all trip/service runs for a specific run_ref and route type
     pub async fn runs_ref_type(
         &self,
-        run_ref: String,
+        run_ref: &str,
         route_type: RouteType,
         options: RunsRefOpts,
     ) -> Result<RunsResponse> {
@@ -282,13 +288,37 @@ impl Client {
     /// View all trip/service runs for a specific run ID and route type
     pub async fn runs_id_type(
         &self,
-        run_id: i32,
+        run_id: RunId,
         route_type: RouteType,
         options: RunsIdOpts,
     ) -> Result<RunsResponse> {
         self.rq(format!(
             "v3/runs/route/{}/route_type/{}?{}",
             run_id,
+            route_type,
+            to_query(options)
+        ))
+        .await
+    }
+    // Search for stops, routes and myki outlets that match the input search term
+    pub async fn search(&self, search_term: &str, options: SearchOpts) -> Result<SearchResponse> {
+        self.rq(format!(
+            "v3/search/{}?{}",
+            url_escape::encode_path(&clean(search_term.to_owned())).to_owned(),
+            to_query(options)
+        ))
+        .await
+    }
+    // View facilities at a specific stop (Metro and VLine stations only)
+    pub async fn stops_id_route_type(
+        &self,
+        stop_id: StopId,
+        route_type: RouteType,
+        options: StopsIdRouteTypeOpts,
+    ) -> Result<StopResponse> {
+        self.rq(format!(
+            "v3/stops/{}/route_type/{}?{}",
+            stop_id,
             route_type,
             to_query(options)
         ))
