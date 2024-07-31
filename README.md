@@ -25,13 +25,13 @@
 | **Outlets**       | [/outlets](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.outlets)                                                 | 🟦      |                                   |
 |                   | [/outlets/location/{}/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.outlets_lat_long)                         | 🟦      |                                   |
 | **Patterns**      | [/pattern/run/{}/route_type/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.patterns_run_route)                 | 🟦      |                                   |
+| **Search**        | /search/{}                                                                                                                   | 🟦      |                                   |
 | **Routes**        | [/routes](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.routes)                                                   | 🟨      | Types not yet concrete. See docs. |
 |                   | [/routes/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.routes_id)                                             | 🟨      | "                                 |
 | **Runs**          | [/runs/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_ref)                                                | 🟨      | "                                 |
 |                   | [/runs/route/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_id)                                           | 🟨      | "                                 |
 |                   | [/runs/{}/route_type/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_ref_type)                             | 🟨      | "                                 |
 |                   | [/runs/route/{}/route_type/{}](https://docs.rs/ptv/latest/ptv/struct.Client.html#method.runs_id_type)                        | 🟨      | "                                 |
-| **Search**        | /search/{}                                                                                                                   | ❌      | Not implemented                   |
-| **Stops**         | /stops/{}/route_type/{}                                                                                                      | ❌      | "                                 |
-|                   | /stops/route/{}/route_type/{}                                                                                                | ❌      | "                                 |
+| **Stops**         | /stops/{}/route_type/{}                                                                                                      | 🟨      | "                                 |
+|                   | /stops/route/{}/route_type/{}                                                                                                | ❌      | Not Implemented                   |
 |                   | /stops/location/{}/{}                                                                                                        | ❌      | "                                 |
