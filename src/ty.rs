@@ -14,7 +14,7 @@ use to_and_fro::{output_case, ToAndFro};
 use crate::{
     de_rfc3339,
     helpers::{
-        de_iso_8601, de_service_time, de_string_as_i32, deserialize_path, ser_disruption_query,
+        de_iso_8601, de_service_time, deserialize_path, ser_disruption_query,
         ser_iso_8601, ser_touch_utc,
     },
     opt_de_rfc3339,
