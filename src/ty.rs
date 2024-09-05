@@ -66,7 +66,7 @@ pub struct Geopath {
 } // TODO: T
 
 /// Types of routes
-#[derive(Debug, Copy, Clone, Display, From)]
+#[derive(Debug, Copy, Clone, Display, From, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(i8)]
 pub enum RouteType {
     /// Metropolitan train service
