@@ -1,6 +1,6 @@
 use chrono::NaiveDateTime;
 use itertools::Itertools;
-use serde::{de::SeqAccess, ser, Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, de::SeqAccess, ser};
 
 use crate::DisruptionModes;
 
@@ -193,7 +193,7 @@ where
     D: Deserializer<'de>,
 {
     struct Visitor;
-    impl<'de> serde::de::Visitor<'de> for Visitor {
+    impl serde::de::Visitor<'_> for Visitor {
         type Value = i32;
         fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
             formatter.write_str("a string representing an integer")

@@ -1,15 +1,17 @@
-use std::fmt::format;
-
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 use quote::{quote, ToTokens};
 
 use syn::{
-    bracketed, ext, parse::{self, discouraged::Speculative, Parse}, parse_macro_input, parse_quote, parse_quote_spanned, punctuated::{self, Punctuated}, spanned::Spanned, token, Expr, ExprStruct, FieldValue, Ident, LitStr, PatLit, Path, Stmt, Token
+    bracketed,
+    parse::{self, discouraged::Speculative, Parse},
+    parse_macro_input, parse_quote, parse_quote_spanned,
+    punctuated::Punctuated,
+    spanned::Spanned,
+    token, Expr, FieldValue, Ident, LitStr, Path, Stmt, Token,
 };
 
 struct Bracketed<T> {
-    bracket: token::Bracket,
+    _bracket: token::Bracket,
     inner: T,
 }
 
@@ -17,7 +19,7 @@ impl<T: Parse> Parse for Bracketed<T> {
     fn parse(input: parse::ParseStream) -> syn::Result<Self> {
         let content;
         Ok(Self {
-            bracket: bracketed!(content in input),
+            _bracket: bracketed!(content in input),
             inner: content.parse()?,
         })
     }
@@ -32,7 +34,7 @@ impl<T: Parse> Parse for Grouped2<T> {
         if input.peek(token::Bracket) {
             let content;
             Ok(Self::Set(Bracketed {
-                bracket: bracketed!(content in input ),
+                _bracket: bracketed!(content in input ),
                 inner: Punctuated::parse_separated_nonempty(&content)?,
             }))
         } else {
@@ -176,7 +178,7 @@ pub fn make_test(_input: TokenStream) -> TokenStream {
         Grouped2::SingleSet(Params { extraparams, struc }) => {
             create_statement_vec(struc, &map, &name, &name.to_string(), extraparams)
         }
-        Grouped2::Set(Bracketed { bracket, inner }) => inner
+        Grouped2::Set(Bracketed { _bracket, inner }) => inner
             .into_iter()
             .flat_map(
                 |Bracketed {
@@ -212,7 +214,7 @@ fn create_statement_vec(
             .iter()
             .map(|group| {
                     let map = &map;
-                    let struc = struc;
+                    // let struc = struc;
                     let extraparams = extraparams.as_ref().map(|x| &x.expr);
                     let (test_name, parsed_struc, span) = match group {
                         Grouped::Single(Field { field_name, value }) => {
@@ -242,20 +244,20 @@ fn create_statement_vec(
                                     Some(value) => {
                                         test_name_vec.push(format!(
                                             "{}({})",
-                                            field_name.to_string(),
+                                            field_name,
                                             value.to_token_stream()
                                         ));
                                         parse_quote_spanned! { value.span() => #field_name: Some(#value) }
                                     }
                                     None => {
                                         test_name_vec.push(field_name.to_string());
-                                        parse_quote_spanned! { field_name.span() => #field_name: Some(true)} 
+                                        parse_quote_spanned! { field_name.span() => #field_name: Some(true)}
                                     }
                                 }})
                                 .collect::<Punctuated<syn::FieldValue, Token![,]>>();
                             let test_name = test_name_vec.join(",");
 
-                            let parsed_struc: Expr = parse_quote_spanned! { bracket.span => 
+                            let parsed_struc: Expr = parse_quote_spanned! { bracket.span =>
                                 #struc {
                                     #fields ,
                                     ..Default::default()
@@ -269,7 +271,7 @@ fn create_statement_vec(
                     } else {
                         parse_quote!(#parsed_struc )
                     };
-                    let test_name: LitStr =  parse_quote! { 
+                    let test_name: LitStr =  parse_quote! {
                         #test_name
                     };
 

@@ -9,13 +9,13 @@ use derive_more::{Display, From};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{collections::HashMap, str::FromStr};
-use to_and_fro::{output_case, ToAndFro};
+use to_and_fro::{ToAndFro, output_case};
 
 use crate::{
     de_rfc3339,
     helpers::{
-        de_iso_8601, de_service_time, deserialize_path, ser_disruption_query,
-        ser_iso_8601, ser_touch_utc,
+        de_iso_8601, de_service_time, deserialize_path, ser_disruption_query, ser_iso_8601,
+        ser_touch_utc,
     },
     opt_de_rfc3339,
 };
@@ -56,7 +56,7 @@ newtype_i32!(RouteId);
 newtype_i32!(DirectionId);
 
 /// Routepath (TODO)
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Geopath {
     pub direction_id: DirectionId,
     pub valid_from: NaiveDate,
@@ -157,7 +157,7 @@ impl DisruptionModes {
 
 //
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Status {
     /// API Version number
     pub version: String,
@@ -202,7 +202,7 @@ pub struct DeparturesStopOpts {
     pub include_geopath: Option<bool>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ApiError {
     pub message: String,
     pub status: Status,
@@ -240,7 +240,7 @@ pub struct DeparturesStopRouteOpts {
     pub include_geopath: Option<bool>,
 }
 
-#[derive(Debug, ToAndFro, Serialize)]
+#[derive(ToAndFro, Serialize)]
 pub enum ExpandOptions {
     All,
     Stop,
@@ -262,7 +262,7 @@ impl<'de> Deserialize<'de> for ExpandOptions {
         Self::from_str(&value).map_err(serde::de::Error::custom)
     }
 }
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DeparturesResponse {
     /// Timetabled and real-time service departures
     pub departures: Vec<Departure>,
@@ -280,14 +280,14 @@ pub struct DeparturesResponse {
     pub status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StoppingPatternsStop {
     #[serde(flatten)]
     pub stop: Stop,
     pub stop_ticket: StopTicket,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Stop {
     #[serde(rename = "stop_distance")]
     pub distance: f32,
@@ -308,7 +308,7 @@ pub struct Stop {
     pub sequence: i32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Departure {
     /// Stop identifier
     pub stop_id: StopId,
@@ -344,7 +344,7 @@ pub struct Departure {
     pub skipped_stops: Option<Vec<Stop>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopTicket {
     pub ticket_type: String,
     pub zone: String,
@@ -355,7 +355,7 @@ pub struct StopTicket {
     pub ticket_zones: Vec<i32>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Route {
     pub route_type: RouteType,
     #[serde(rename = "route_id")]
@@ -368,7 +368,7 @@ pub struct Route {
     pub gtfs_id: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RouteWithGeoPath {
     #[serde(flatten)]
     pub route: Route,
@@ -376,7 +376,7 @@ pub struct RouteWithGeoPath {
     pub geopath: Option<Vec<Geopath>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Direction {
     #[serde(rename = "direction_id")]
     pub id: DirectionId,
@@ -388,7 +388,7 @@ pub struct Direction {
 
 //
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DirectionsResponse {
     /// Directions of travel of route
     pub directions: Vec<DirectionWithDescription>,
@@ -396,7 +396,7 @@ pub struct DirectionsResponse {
     pub status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DirectionWithDescription {
     // Direction of travel identifier
     #[serde(flatten)]
@@ -432,7 +432,7 @@ pub struct DisruptionsSpecificOpts {
     pub status: Option<DisruptionStatus>,
 }
 
-#[derive(Debug, ToAndFro)]
+#[derive(ToAndFro)]
 #[output_case("lower")]
 pub enum DisruptionStatus {
     Current,
@@ -458,7 +458,7 @@ impl<'de> Deserialize<'de> for DisruptionStatus {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DisruptionsResponse {
     /// Disruption information applicable to relavenet route, run, stop, direction
     pub disruptions: Disruptions,
@@ -466,7 +466,7 @@ pub struct DisruptionsResponse {
     pub status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Disruptions {
     /// Subset of disruption information applicable to multiple route_types
     pub general: Vec<Disruption>,
@@ -498,7 +498,7 @@ pub struct Disruptions {
     pub taxi: Vec<Disruption>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Disruption {
     /// Disruption information identifier
     pub disruption_id: DisruptionId,
@@ -533,7 +533,7 @@ pub struct Disruption {
     pub display_status: bool,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DisruptionStop {
     #[serde(rename = "stop_id")]
     pub id: StopId,
@@ -541,7 +541,7 @@ pub struct DisruptionStop {
     pub name: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DisruptionRoute {
     #[serde(flatten)]
     pub route: Route,
@@ -549,7 +549,7 @@ pub struct DisruptionRoute {
     pub direction: Option<DisruptionDirection>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DisruptionDirection {
     /// Route and direction of travel combination identifier
     #[serde(rename = "route_direction_id")]
@@ -588,7 +588,7 @@ pub struct FareEstimateOpts {
     pub traveled_route_types: Option<Vec<RouteType>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct FareEstimateResponse {
     pub fare_estimate_result: FareEstimate,
@@ -596,7 +596,7 @@ pub struct FareEstimateResponse {
     pub fare_estimate_status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct ZoneInfo {
     pub min_zone: i32,
@@ -604,14 +604,14 @@ pub struct ZoneInfo {
     pub unique_zones: Vec<i32>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum PassengerType {
     Senior,
     Concession,
     FullFare,
 }
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct PassengerFare {
     pub passenger_type: PassengerType,
@@ -627,7 +627,7 @@ pub struct PassengerFare {
 }
 
 // TODO: This is undefined on the API documentation
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct FareEstimate {
     pub is_early_bird: bool,
@@ -658,7 +658,7 @@ pub struct OutletsLatLongOpts {
     pub max_distance: Option<i32>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct OutletsResponse {
     /// Myki ticket outlets
     pub outlets: Vec<Outlet>,
@@ -666,7 +666,7 @@ pub struct OutletsResponse {
     pub status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Outlet {
     /// The SLID / SPID
     #[serde(rename = "outlet_slid_spid")]
@@ -742,7 +742,7 @@ pub struct PatternsRunRouteOpts {
     pub include_geopath: Option<bool>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct PatternResponse {
     /// Disruption information applicable to relevant routes or stops
     pub disruptions: Vec<Disruption>,
@@ -783,7 +783,7 @@ pub struct RouteIdOpts {
 }
 
 /// This is just documented wrong?
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RoutesResponse {
     /// Train lines, tram routes, bus routes, regional coach routes, Night Bus routes
     pub routes: Vec<RouteWithStatus>,
@@ -792,7 +792,7 @@ pub struct RoutesResponse {
     pub status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RoutesIdResponse {
     /// Train lines, tram routes, bus routes, regional coach routes, Night Bus routes
     pub route: Option<RouteWithStatus>,
@@ -800,7 +800,7 @@ pub struct RoutesIdResponse {
     pub status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RouteWithStatus {
     /// Service status for the route (indicates disruptions)
     #[serde(rename = "route_service_status")]
@@ -809,7 +809,7 @@ pub struct RouteWithStatus {
     pub route: RouteWithGeoPath,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RouteServiceStatus {
     pub description: String,
     pub timestamp: String, // TODO: Add a deser. No information in docs.
@@ -842,7 +842,7 @@ pub struct RunsRefOpts {
     pub include_geopath: Option<bool>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct RunsResponse {
     /// Individual trips/services of a route
     pub runs: Vec<Run>,
@@ -850,7 +850,7 @@ pub struct RunsResponse {
     pub status: Status,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Run {
     /// Numeric trip/service run identifier.
     /// Defaults to -1 when run identifier is Alphanumeric
@@ -884,7 +884,7 @@ pub struct Run {
     pub geopath: Vec<Geopath>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct VehiclePosition {
     /// Geographic coordinate of latitude of the vehicle when known.
     pub latitude: Option<f64>,
@@ -909,7 +909,7 @@ pub struct VehiclePosition {
     pub expiry_time: Option<String>, // TODO: Add a deser. No information in docs.
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub enum ServiceOperator {
     #[serde(rename = "Metro Trains Melbourne")]
     MetroTrainsMelbourne,
@@ -920,7 +920,7 @@ pub enum ServiceOperator {
     Other(String),
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct VehicleDescriptor {
     /// Operator name of the vehicle such as "Metro Trains Melbourne", "Yarra Trams", "Ventura Bus Line", etc.
     /// Only available for some runs.
@@ -960,14 +960,14 @@ pub struct SearchOpts {
     pub match_stop_by_gtfs_stop_id: Option<bool>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ResultStop {
     #[serde(flatten)]
     pub stop: Stop,
     pub routes: Vec<RouteWithStatus>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct SearchResponse {
     pub stops: Vec<ResultStop>,
     pub routes: Vec<RouteWithStatus>,
@@ -1002,18 +1002,18 @@ pub struct StopsIdRouteTypeOpts {
     pub disruptions: Option<bool>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopGps {
     pub latitude: f64,
     pub longitude: f64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopLocation {
     pub gps: StopGps,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopAmenityDetails {
     pub toilet: bool,
     pub taxi_rank: bool,
@@ -1021,7 +1021,7 @@ pub struct StopAmenityDetails {
     pub cctv: bool,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopAccessibilityWheelchair {
     pub accessible_ramp: bool,
     pub parking: bool,
@@ -1036,7 +1036,7 @@ pub struct StopAccessibilityWheelchair {
     pub steep_ramp: bool,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopAccessibility {
     pub lighting: bool,
     pub platform_number: bool,
@@ -1049,7 +1049,7 @@ pub struct StopAccessibility {
     pub wheelchair: StopAccessibilityWheelchair,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopStaffing {
     pub fri_am_from: String,
     pub fri_am_to: String,
@@ -1081,11 +1081,10 @@ pub struct StopStaffing {
     pub wed_am_from: String,
     pub wed_am_to: String,
     pub wed_pm_from: String,
-    #[allow(non_snake_case)]
-    pub wed_pm_To: String,
+    pub wed_pm_to: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopDetails {
     pub disruption_ids: Vec<DisruptionId>,
     #[serde(rename = "stop_id")]
@@ -1109,7 +1108,7 @@ pub struct StopDetails {
     pub location: Option<StopLocation>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopResponse {
     pub stop: StopDetails,
     pub disruptions: Vec<Disruption>,
