@@ -5,12 +5,11 @@ pub mod test {
 
     use colored::Colorize;
     use dotenv::dotenv;
-    use futures::{stream::FuturesUnordered, StreamExt};
-    
+    use futures::{StreamExt, stream::FuturesUnordered};
+
     use once_cell::sync::Lazy;
     use ptv::*;
     use ptvrs_macros::make_test;
-    
 
     static DEVID: &str = "DEVID";
     static KEY: &str = "KEY";
@@ -131,7 +130,7 @@ pub mod test {
                 let mut tasks = TASKS
                     .iter()
                     .map(|(name, task)| {
-                        let task = Arc::clone(&task);
+                        let task = Arc::clone(task);
                         let failed = Arc::clone(&failed);
                         async move {
                             println!("[{}] Running test: {}", "~".cyan(), name.yellow());
@@ -171,7 +170,7 @@ pub mod test {
                         }
                     })
                     .collect::<FuturesUnordered<_>>();
-                while let Some(_) = tasks.next().await {}
+                while (tasks.next().await).is_some() {}
             });
 
         let failed = failed.blocking_lock();
